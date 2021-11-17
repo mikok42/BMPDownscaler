@@ -1,37 +1,40 @@
 .data
-filename: .ascii "jerzy.bmp"
+inFileName: .asciiz "jerzy.bmp"
 endMessage: .ascii "\n the program is finished \n"
 errorMessage: .ascii "\n error reading file \n"
-headerSize: .space 54
-imgBuff: .space 129846
+headerBuff: .space 54
+
 
 .text
-loadImage:
+
+main:
+
+openHeader:
+#open
 	li $v0, 13
-	la $a0, filename
+	la $a0, inFileName
 	li $a1, 0
 	li $a2, 0
 	syscall
 	
-	move $s6, $v0
+	la $s6, ($v0)
 	bltz $s6, fReadError
 	
+	#load
 	move $a0, $s6
 	li $v0, 14
-	la $a1, imgBuff
-	li $a2, 129846
+	la $a1, headerBuff
+	li $a2, 54
 	syscall
 	
-	move $s7, $v0
-	
-	li   $v0, 16     
-  	move $a0, $s6 
-	syscall
-	
+#read img size 
+	la $s1, headerBuff 
+	la $s2, ($s1)
+
 	li $v0, 1
-	la $a0, ($s7)
+	lw $a1, ($s2)
 	syscall
-	
+
 	li   $v0, 16     
   	move $a0, $s6 
 	syscall
