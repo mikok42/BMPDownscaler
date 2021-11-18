@@ -13,6 +13,8 @@ openHeader:
 #open
 	li $v0, 13
 	la $a0, inFileName
+	
+
 	li $a1, 0
 	li $a2, 0
 	syscall
@@ -26,19 +28,17 @@ openHeader:
 	la $a1, headerBuff
 	li $a2, 54
 	syscall
-	
+#wczytaj pierwsze 2 i zapisz i potem reszta
 #read img size 
 	la $s1, headerBuff 
-	la $s2, ($s1)
-
 	li $v0, 1
-	lw $a1, ($s2)
+	lw $a0, 2($s1)
 	syscall
 
 	li   $v0, 16     
   	move $a0, $s6 
 	syscall
-end:
+end:	
 	li $v0, 4
 	la $a0, endMessage
 	syscall
