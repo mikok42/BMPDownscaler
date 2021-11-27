@@ -1,15 +1,20 @@
 .data
 inFileName: .asciiz "jerzy.bmp"
 outFileName: .asciiz "out.bmp"
+tempFileName: .asciiz "temp.bmp"
 endMessage: .ascii "\n the program is finished \n"
 errorMessage: .ascii "\n error reading file \n"
 srcHeaderBuff: .space 54
 outHeaderBuff: .space 54
 .text
+#s2 = srcHeadBuff
+#s4 = srcImgBuff
 #t7 = wSrc
 #t8 = hSrc
 #t9 = sSrc
 
+#s3 = outHeadBuff
+#s5 = outImgBuff
 #t4 = wOut
 #t5 = hOut
 #t6 = sOut
@@ -34,7 +39,80 @@ main:
 	move $t6, $t3
 	
 	move $s3, $s1
+#allocate mem src
 	
+	li $v0, 9
+	move, $a0, $t9
+	addiu $a0, $a0, 54
+	syscall
+	
+	move $s4, $v0
+#allocate mem out
+	li $v0, 9
+	move $a0, $t8
+	mulu $a0, $a0, $t4
+	addiu $a0, $a0, 54
+	syscall
+	
+	move $s5, $v0
+	
+#open src for reading
+	li $v0, 13
+	la $a0, inFileName
+	li $a1, 0
+	li $a2, 0
+	syscall
+	
+	la $s6, ($v0)
+	bltz $s6, fReadError
+	
+	#loadWholeSRCImage
+
+	move $a0, $s6
+	li $v0, 14
+	la $a1, ($s4)
+	move $a2, $t6
+	addiu $a2, $a2, 54
+	syscall
+	
+	move $t0, $t8
+	move $t1, $t4
+	subiu $t1, 1
+	li $t2, 2
+	
+loopOuter:
+	addiu $s4, $s4, 54
+	
+	subiu $t0, 1
+	beqz $t0, saveFile
+	loopInner:
+		lb $a0, ($s4)
+		addiu $s4, $s4, 1
+		lb $a1, ($s4)
+		addiu $s4, $s4, 1
+		add $a2, $a0, $a1
+		divu $a2, $a2, $t2
+		
+		
+		
+		lb $a0, ($s4)
+		addiu $s4, $s4, 1
+		lb $a1, ($s4)
+		addiu $s4, $s4, 1
+		add $a2, $a0, $a1
+		divu $a2, $a2, $t2
+		
+		lb $a0, ($s4)
+		addiu $s4, $s4, 1
+		lb $a1, ($s4)
+		addiu $s4, $s4, 1
+		add $a2, $a0, $a1
+		subiu $t4, $t4, 1
+		beqz $t1, loopOuter
+		divu $a2, $a2, $t2
+		
+saveFile:
+
 	j end
 openHeader:
 #open
@@ -98,6 +176,14 @@ openHeader:
 	
 	jr $ra
 	
+fReadError:
+	li $v0, 4
+	la $a0, errorMessage
+	syscall
+	
+	li $v0, 10
+	syscall
+
 end:	
 	li $v0, 4
 	la $a0, endMessage
@@ -106,10 +192,4 @@ end:
 	li $v0, 10
 	syscall
 
-fReadError:
-	li $v0, 4
-	la $a0, errorMessage
-	syscall
-	
-	li $v0, 10
-	syscall
+
