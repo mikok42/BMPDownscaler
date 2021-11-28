@@ -49,9 +49,7 @@ main:
 	move $s4, $v0
 #allocate mem out
 	li $v0, 9
-	move $a0, $t8
-	mulu $a0, $a0, $t4
-	addiu $a0, $a0, 54
+	move $a0, $t6
 	syscall
 	
 	move $s5, $v0
@@ -75,44 +73,67 @@ main:
 	addiu $a2, $a2, 54
 	syscall
 	
-	move $t0, $t8
-	move $t1, $t4
-	subiu $t1, 1
-	li $t2, 2
-	
-loopOuter:
-	addiu $s4, $s4, 54
-	
-	subiu $t0, 1
-	beqz $t0, saveFile
-	loopInner:
-		lb $a0, ($s4)
-		addiu $s4, $s4, 1
-		lb $a1, ($s4)
-		addiu $s4, $s4, 1
-		add $a2, $a0, $a1
-		divu $a2, $a2, $t2
-		
-		
-		
-		lb $a0, ($s4)
-		addiu $s4, $s4, 1
-		lb $a1, ($s4)
-		addiu $s4, $s4, 1
-		add $a2, $a0, $a1
-		divu $a2, $a2, $t2
-		
-		lb $a0, ($s4)
-		addiu $s4, $s4, 1
-		lb $a1, ($s4)
-		addiu $s4, $s4, 1
-		add $a2, $a0, $a1
-		subiu $t4, $t4, 1
-		beqz $t1, loopOuter
-		divu $a2, $a2, $t2
-		
-saveFile:
+#s0 width coefficient
+#s1 height coefficient
 
+	divu $s0, $t7, $t4
+	divu $s1, $t8, $t5
+
+#s4 height pointer
+#s2 width pointer
+
+#a1 width in bytes
+ 	addiu $s4, $s4, 54
+ 	
+	move $a1, $t7
+	mulu $a1, $a1, 3
+	li $a2, 8191
+	move $k0, $s5
+	addiu $k0, $k0, 54
+loopOuter:
+	beqz $a2, saveFile
+	subiu $a2, $a2, 1
+	loopInner:
+		move $a0, $s4
+		jal loadPixel
+		addu $t9, $v0, $0
+	
+		move $a0, $s4
+		addiu $a0, $a0, 3
+		jal loadPixel
+		add $t9, $t9, $v0
+	
+		move $a0, $s4
+		addu $a0, $a0, $a1
+		jal loadPixel 
+		add $t9, $t9, $v0
+	
+		move $a0, $s4
+		addiu $a0, $a0, 3
+		jal loadPixel
+		add $t9, $t9, $v0
+	
+		divu $t9 $t9, 4
+		sw $t9, ($k0)
+		addiu $k0, $k0, 3
+		j loopOuter
+saveFile:
+	la $a0, outFileName
+	li $a1, 1
+	li $a2, 0 
+	li $v0 13
+	syscall
+	
+	move $a0, $v0
+	move $a1, $s5
+	move $a2, $t6
+	addiu $a2, $a2, 54
+	li $v0, 15 
+	syscall
+	
+	li $v0, 16
+	syscall
+	
 	j end
 openHeader:
 #open
@@ -192,4 +213,13 @@ end:
 	li $v0, 10
 	syscall
 
-
+loadPixel:
+	lbu $v0, ($a0)
+	sll $v0, $v0, 8
+	lbu $a3, 8($a0)
+	add $v0, $v0, $a3
+	sll $v0, $v0, 8
+	lbu $a3, 16($a0)
+	add $v0, $v0, $a3
+	jr $ra
+	
