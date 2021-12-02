@@ -76,8 +76,6 @@ main:
 #s0 width coefficient
 #s1 height coefficient
 
-	divu $s0, $t7, $t4
-	divu $s1, $t8, $t5
 
 #s4 height pointer
 #s2 width pointer
@@ -88,8 +86,15 @@ main:
 	move $a1, $t7
 	mulu $a1, $a1, 3
 	li $a2, 8191
-	move $k0, $s5
-	addiu $k0, $k0, 54
+	move $s0, $s5
+saveHeader:
+	li $a1, 54
+	loop:
+		sb $s3, ($s5)
+		addiu $s3, $s3, 1
+		addiu $s5, $s5, 1
+		addiu $a1, $a1, -1
+		beqz $a1, loop
 loopOuter:
 	beqz $a2, saveFile
 	subiu $a2, $a2, 1
@@ -114,14 +119,14 @@ loopOuter:
 		add $t9, $t9, $v0
 	
 		divu $t9 $t9, 4
-		sb $t9, ($k0)
-		addiu $k0, $k0, 1
+		sb $t9, ($s5)
+		addiu $s5, $s5, 1
 		addiu $t9, $t9, 1
-		sb $t9, ($k0)
-		addiu $k0, $k0, 1
+		sb $t9, ($s5)
+		addiu $s5, $s5, 1
 		addiu $t9, $t9, 1
-		sb $t9, ($k0)
-		addiu $k0, $k0, 1
+		sb $t9, ($s5)
+		addiu $s5, $s5, 1
 		addiu $t9, $t9, 1
 		j loopOuter
 saveFile:
@@ -141,7 +146,7 @@ saveFile:
 	li $v0, 16
 	syscall
 	
-	j end
+	b end
 openHeader:
 #open
 	li $v0, 13
