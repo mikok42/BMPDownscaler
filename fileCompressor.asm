@@ -114,8 +114,15 @@ loopOuter:
 		add $t9, $t9, $v0
 	
 		divu $t9 $t9, 4
-		sw $t9, ($k0)
-		addiu $k0, $k0, 3
+		sb $t9, ($k0)
+		addiu $k0, $k0, 1
+		addiu $t9, $t9, 1
+		sb $t9, ($k0)
+		addiu $k0, $k0, 1
+		addiu $t9, $t9, 1
+		sb $t9, ($k0)
+		addiu $k0, $k0, 1
+		addiu $t9, $t9, 1
 		j loopOuter
 saveFile:
 	la $a0, outFileName
