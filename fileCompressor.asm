@@ -78,7 +78,7 @@ main:
  	
 	move $a1, $t7
 	mulu $a1, $a1, 3
-	li $a2, 8191
+	li $a2, 16384
 	move $k0, $s5
 	addiu $k0, $k0, 54
 loopOuter:
@@ -89,30 +89,36 @@ loopOuter:
 		jal loadPixel
 		addu $t9, $v0, $0
 		
-		addiu $s4, $s4, 4
+		addiu $s4, $s4, 3
 		move $a0, $s4
 		jal loadPixel
 		add $t9, $t9, $v0
 	
 		move $a0, $s4
 		addu $a0, $a0, $a1
+		subiu $a0, $a0, 3
 		jal loadPixel 
 		add $t9, $t9, $v0
 
-		addiu $a0, $a0, 4
+		addiu $a0, $a0, 3
 		jal loadPixel
+		
 		add $t9, $t9, $v0
 	
 		divu $t9 $t9, 4
+		
 		sb $t9, ($k0)
 		addiu $k0, $k0, 1
 		addiu $t9, $t9, 1
+		
 		sb $t9, ($k0)
 		addiu $k0, $k0, 1
 		addiu $t9, $t9, 1
+		
 		sb $t9, ($k0)
 		addiu $k0, $k0, 1
 		addiu $t9, $t9, 1
+		
 		j loopOuter
 saveFile:
 	la $a0, outFileName
