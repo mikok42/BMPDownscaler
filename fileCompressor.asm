@@ -72,15 +72,6 @@ main:
 	move $a2, $t6
 	addiu $a2, $a2, 54
 	syscall
-	
-#s0 width coefficient
-#s1 height coefficient
-
-	divu $s0, $t7, $t4
-	divu $s1, $t8, $t5
-
-#s4 height pointer
-#s2 width pointer
 
 #a1 width in bytes
  	addiu $s4, $s4, 54
@@ -97,9 +88,9 @@ loopOuter:
 		move $a0, $s4
 		jal loadPixel
 		addu $t9, $v0, $0
-	
+		
+		addiu $s4, $s4, 4
 		move $a0, $s4
-		addiu $a0, $a0, 3
 		jal loadPixel
 		add $t9, $t9, $v0
 	
@@ -107,9 +98,8 @@ loopOuter:
 		addu $a0, $a0, $a1
 		jal loadPixel 
 		add $t9, $t9, $v0
-	
-		move $a0, $s4
-		addiu $a0, $a0, 3
+
+		addiu $a0, $a0, 4
 		jal loadPixel
 		add $t9, $t9, $v0
 	
@@ -132,9 +122,16 @@ saveFile:
 	syscall
 	
 	move $a0, $v0
+	move $a1, $s3
+	li $a2, 54
+	
+	li $v0, 15 
+	syscall
+	
+	
 	move $a1, $s5
 	move $a2, $t6
-	addiu $a2, $a2, 54
+	
 	li $v0, 15 
 	syscall
 	
@@ -222,11 +219,11 @@ end:
 
 loadPixel:
 	lbu $v0, ($a0)
-	sll $v0, $v0, 8
 	lbu $a3, 8($a0)
+	sll $a3, $a3, 8
 	add $v0, $v0, $a3
-	sll $v0, $v0, 8
 	lbu $a3, 16($a0)
+	sll $a3, $a3, 16
 	add $v0, $v0, $a3
 	jr $ra
 	
